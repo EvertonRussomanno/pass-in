@@ -29,7 +29,7 @@ SET FILES NIO TRUE
 SET FILES NIO SIZE 256
 SET FILES LOG TRUE
 SET FILES LOG SIZE 50
-SET FILES CHECK 358
+SET FILES CHECK 2209
 SET DATABASE COLLATION "SQL_TEXT" PAD SPACE
 CREATE USER SA PASSWORD DIGEST 'd41d8cd98f00b204e9800998ecf8427e'
 ALTER USER SA SET LOCAL TRUE
@@ -58,3 +58,5 @@ INSERT INTO "flyway_schema_history" VALUES(1,'1','create-table-events','SQL','V1
 INSERT INTO "flyway_schema_history" VALUES(2,'2','create-table-attendees','SQL','V2__create-table-attendees.sql',70824381,'SA','2024-04-02 18:02:43.890107',1,'1')
 INSERT INTO "flyway_schema_history" VALUES(3,'3','create-table-checkins','SQL','V3__create-table-checkins.sql',-378327417,'SA','2024-04-02 18:02:43.901228',1,'1')
 INSERT INTO "flyway_schema_history" VALUES(4,'4','create-indexes','SQL','V4__create-indexes.sql',553901455,'SA','2024-04-02 18:02:43.912512',1,'1')
+INSERT INTO EVENTS VALUES('8f2a640f-69a7-416a-800d-5f9e80792043','Novo Evento 1','Details do nosso novo evento 1','novo-evento-1',500)
+INSERT INTO EVENTS VALUES('f116319a-d3ea-46bc-9b0c-833f8d6ee74d','Novo Evento 55555','Details do nosso5555555 novo evento 1','novo-evento-55555',200)
