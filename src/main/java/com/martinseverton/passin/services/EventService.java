@@ -2,7 +2,10 @@ package com.martinseverton.passin.services;
 
 import com.martinseverton.passin.domain.attendee.Attendee;
 import com.martinseverton.passin.domain.event.Event;
+import com.martinseverton.passin.domain.event.exceptions.EventFullException;
 import com.martinseverton.passin.domain.event.exceptions.EventNotFoundException;
+import com.martinseverton.passin.dto.attendee.AttendeeIdDTO;
+import com.martinseverton.passin.dto.attendee.AttendeeRequestDTO;
 import com.martinseverton.passin.dto.event.EventIdDTO;
 import com.martinseverton.passin.dto.event.EventRequestDTO;
 import com.martinseverton.passin.dto.event.EventResponseDTO;
@@ -11,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +26,7 @@ public class EventService {
     private final AttendeeService attendeeService;
 
     public EventResponseDTO getEventDetail(String eventId){
-        Event event = this.eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
+        Event event = this.getEventById(eventId);
         List<Attendee> attendeeList = this.attendeeService.getAllAttendeesFromEvent(eventId);
         return new EventResponseDTO(event, attendeeList.size());
     }
@@ -55,6 +58,25 @@ public class EventService {
         return new EventIdDTO(newEvent.getId());
     }
 
+    public AttendeeIdDTO registerAttendeeOnEvent(String eventId, AttendeeRequestDTO attendeeRequestDTO){
+        this.attendeeService.verifyAttendeeSubscription(attendeeRequestDTO.email(), eventId);
+
+        Event event = this.getEventById(eventId);
+        List<Attendee> attendeeList = this.attendeeService.getAllAttendeesFromEvent(eventId);
+
+        if(event.getMaximumAttendees() <= attendeeList.size()) throw new EventFullException("Event is full!");
+
+        Attendee newAttendee = new Attendee();
+        newAttendee.setName(attendeeRequestDTO.name());
+        newAttendee.setEmail(attendeeRequestDTO.email());
+        newAttendee.setEvent(event);
+        newAttendee.setCreatedAt(LocalDateTime.now());
+
+        this.attendeeService.registerAttendee(newAttendee);
+
+        return new AttendeeIdDTO(newAttendee.getId());
+    }
+
     public void deleteEvent(String id){
         eventRepository.deleteById(id);
     }
@@ -65,5 +87,9 @@ public class EventService {
                 .replaceAll("[^\\w\\s]", "")
                 .replaceAll("\\s+","-")
                 .toLowerCase();
+    }
+
+    private Event getEventById(String eventId){
+        return this.eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
     }
 }

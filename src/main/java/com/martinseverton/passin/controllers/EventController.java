@@ -1,7 +1,7 @@
 package com.martinseverton.passin.controllers;
 
-import com.martinseverton.passin.domain.attendee.Attendee;
-import com.martinseverton.passin.dto.attendee.AttendeeDetailsDTO;
+import com.martinseverton.passin.dto.attendee.AttendeeIdDTO;
+import com.martinseverton.passin.dto.attendee.AttendeeRequestDTO;
 import com.martinseverton.passin.dto.attendee.AttendeesListResponseDTO;
 import com.martinseverton.passin.dto.event.EventIdDTO;
 import com.martinseverton.passin.dto.event.EventRequestDTO;
@@ -10,13 +10,7 @@ import com.martinseverton.passin.services.AttendeeService;
 import com.martinseverton.passin.services.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -56,6 +50,15 @@ public class EventController {
         var uri = uriComponentsBuilder.path("/events/{id}").buildAndExpand(eventIdDTO.eventId()).toUri();
 
         return ResponseEntity.created(uri).body(eventIdDTO);
+    }
+
+    @PostMapping("/{eventId}/attendees")
+    public ResponseEntity<AttendeeIdDTO> registerParticipante(@PathVariable String eventId, @RequestBody AttendeeRequestDTO body, UriComponentsBuilder uriComponentsBuilder){
+        AttendeeIdDTO attendeeIdDTO = this.eventService.registerAttendeeOnEvent(eventId, body);
+
+        var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/badge").buildAndExpand(attendeeIdDTO.attendeeId()).toUri();
+
+        return ResponseEntity.created(uri).body(attendeeIdDTO);
     }
 
     @DeleteMapping("/delete/{id}")

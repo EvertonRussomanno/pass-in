@@ -1,24 +1,31 @@
 package com.martinseverton.passin.controllers;
 
-import com.martinseverton.passin.domain.attendee.Attendee;
+import com.martinseverton.passin.dto.attendee.AttendeeBadgeResponseDTO;
 import com.martinseverton.passin.services.AttendeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/attendees")
 @RequiredArgsConstructor
 public class AttendeeController {
 
-    private AttendeeService attendeeService;
+    private final AttendeeService attendeeService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<Attendee>> getAllAttendeesFromEvent(String id){
-        return ResponseEntity.ok(attendeeService.getAllAttendeesFromEvent(id));
+    @GetMapping("/{attendeeId}/badge")
+    public ResponseEntity<AttendeeBadgeResponseDTO> getAttendeeBadge(@PathVariable String attendeeId, UriComponentsBuilder uriComponentsBuilder){
+        AttendeeBadgeResponseDTO attendeeBadgeResponseDTO = this.attendeeService.getAttendeeBadge(attendeeId, uriComponentsBuilder);
+        return ResponseEntity.ok(attendeeBadgeResponseDTO);
+    }
+
+    @PostMapping("/{attendeeId}/check-in")
+    public ResponseEntity registerCheckIn(@PathVariable String attendeeId, UriComponentsBuilder uriComponentsBuilder){
+        this.attendeeService.checkInAttendee(attendeeId);
+
+        var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/badge").buildAndExpand(attendeeId).toUri();
+
+        return ResponseEntity.created(uri).body(attendeeId);
     }
 }
